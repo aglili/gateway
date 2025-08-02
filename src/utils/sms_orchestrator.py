@@ -137,7 +137,6 @@ class SMSOrchestrator:
 
 
 # Global orchestrator instance
-# This follows the same pattern as the original implementation but with improved architecture
 _orchestrator = SMSOrchestrator()
 
 def get_sms_orchestrator() -> SMSOrchestrator:
