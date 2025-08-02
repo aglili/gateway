@@ -6,7 +6,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from src.config.settings import settings
 from src.schema import SMSRequest, SMSResponse
 from src.utils.logger import setup_logger
-from src.utils.sms_providers import SMSProvider, get_sms_provider
+from src.utils.sms_orchestrator import get_sms_orchestrator, SMSOrchestrator    
 
 logger = setup_logger(__name__)
 
@@ -25,10 +25,10 @@ app = FastAPI(
 
 @app.post("/sms/send", response_model=SMSResponse)
 async def send_sms(
-    request: SMSRequest, sms_provider: SMSProvider = Depends(get_sms_provider)
+    request: SMSRequest, sms_orchestrator: SMSOrchestrator = Depends(get_sms_orchestrator)
 ):
     try:
-        response = await sms_provider.send_sms(request)
+        response = await sms_orchestrator.send_sms(request)
 
         if not response.success:
             raise HTTPException(
@@ -46,20 +46,20 @@ async def send_sms(
 
 
 @app.get("/health")
-async def health_check(sms_provider: SMSProvider = Depends(get_sms_provider)):
+async def health_check(sms_orchestrator: SMSOrchestrator = Depends(get_sms_orchestrator)):
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "circuit_breaker_status": await sms_provider.circuit_breaker_status(),
+        "circuit_breaker_status": await sms_orchestrator.get_provider_status(),
     }
 
 
 @app.get("/circuit-breaker-status")
-async def circuit_breaker_status(sms_provider: SMSProvider = Depends(get_sms_provider)):
-    return await sms_provider.circuit_breaker_status()
+async def circuit_breaker_status(sms_orchestrator: SMSOrchestrator = Depends(get_sms_orchestrator)):
+    return await sms_orchestrator.get_provider_status()
 
 
 @app.post("/circuit-breaker/reset")
-async def reset_circuit_breaker(sms_provider: SMSProvider = Depends(get_sms_provider)):
-    await sms_provider.reset_circuit_breakers()
+async def reset_circuit_breaker(sms_orchestrator: SMSOrchestrator = Depends(get_sms_orchestrator)):
+    await sms_orchestrator.reset_all_circuit_breakers()
     return {"status": "Circuit breakers reset"}

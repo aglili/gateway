@@ -5,6 +5,7 @@ A robust SMS gateway service built with FastAPI that supports multiple SMS provi
 ## Features
 
 - **Multi-Provider Support**: Integrates with Arkesel and Mnotify SMS providers
+- **Strategy Pattern**: Clean separation of concerns with provider-specific strategies
 - **Circuit Breaker Pattern**: Prevents cascading failures and improves system resilience
 - **Automatic Failover**: Automatically switches between providers if one fails
 - **Health Monitoring**: Built-in health checks and circuit breaker status monitoring
@@ -12,23 +13,7 @@ A robust SMS gateway service built with FastAPI that supports multiple SMS provi
 - **RESTful API**: Clean REST API with automatic documentation
 - **Environment Configuration**: Flexible configuration via environment variables
 
-## Architecture
 
-```
-gateway/
-├── src/
-│   ├── config/
-│   │   └── settings.py          # Configuration management
-│   ├── utils/
-│   │   ├── circuit_breaker.py   # Circuit breaker implementation
-│   │   ├── enums.py            # Enums and constants
-│   │   ├── logger.py           # Logging setup
-│   │   └── sms_providers.py    # SMS provider implementations
-│   ├── main.py                 # FastAPI application
-│   └── schema.py               # Pydantic models
-├── requirements.txt             # Python dependencies
-└── README.md                   # This file
-```
 
 ## Prerequisites
 
@@ -148,6 +133,7 @@ Get detailed circuit breaker status for all providers.
 
 Manually reset all circuit breakers to CLOSED state.
 
+
 ## Circuit Breaker Pattern
 
 The application implements a circuit breaker pattern to improve system resilience:
@@ -172,6 +158,8 @@ The application implements a circuit breaker pattern to improve system resilienc
 - **Authentication**: API key in URL parameters
 - **Required Config**: `MNOTIFY_API_KEY`, `MNOTIFY_SENDER_ID`
 
+
+
 ## Error Handling
 
 The service implements comprehensive error handling:
@@ -191,19 +179,12 @@ src/
 │   ├── circuit_breaker.py  # Circuit breaker implementation
 │   ├── enums.py           # Enums and constants
 │   ├── logger.py          # Logging setup
-│   └── sms_providers.py   # SMS provider implementations
+│   ├── sms_orchestrator.py # Orchestrator for managing strategies
+│   ├── sms_providers.py   # Original SMS provider implementations
+│   └── sms_strategy.py    # Strategy pattern implementation
 ├── main.py                # FastAPI application
 └── schema.py              # Pydantic models
 ```
-
-### Adding New Providers
-
-To add a new SMS provider:
-
-1. Add configuration in `settings.py`
-2. Implement provider method in `SMSProvider` class
-3. Add provider to the providers list in `send_sms` method
-4. Update circuit breaker initialization
 
 ### Testing
 
